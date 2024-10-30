@@ -20,11 +20,8 @@ public class TokenConfig {
         return new RSAKeyPairGenerator();
     }
     
-    //--------------------------------------------------
-    
     @Bean
     public PasswordEncoder passwordEncoder() {
         return  new BCryptPasswordEncoder();
-    }
-    
+    }    
 }

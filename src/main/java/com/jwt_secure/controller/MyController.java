@@ -1,6 +1,5 @@
 package com.jwt_secure.controller;
 
-import com.jwt_secure.model.AppUser;
 import com.jwt_secure.model.LoginDto;
 import com.jwt_secure.model.RegisterDto;
 import com.jwt_secure.service.AppUserService;
@@ -26,9 +25,6 @@ public class MyController {
         this.appUserService = appUserService;
         this.tokenService = tokenService;
     }
-    
-    
-    
     @GetMapping("/")
     public String home() {
         return "Home page";
@@ -56,14 +52,6 @@ public class MyController {
     
     @PostMapping("/register")
     public ResponseEntity<Object> userRegister(@RequestBody RegisterDto registerDto) {
-//        AppUser user = appUserService.getUserFromDtoAndSaveToDB(registerDto);
-//        if(user == null) 
-//            return ResponseEntity.badRequest().body(" User not registred in DB ");
-//        String token = tokenService.generateTokenFromAppUser(user);
-//        Map<String, Object> response = new HashMap<>();
-//        response.put("user", user);
-//        response.put("token", token);
-//        return ResponseEntity.ok(response);
         return mapUserDetailsToResponse(appUserService.saveUserToDB(registerDto));
     }
     @GetMapping("/login")
@@ -72,18 +60,6 @@ public class MyController {
     }
     @PostMapping("/login")
     public ResponseEntity<Object> userLogining(@RequestBody LoginDto login) {
-//        UserDetails user = appUserService.loadUserByUsername(login.getUserName());
-//        if(user == null) 
-//            return ResponseEntity.badRequest().body(" User not registred in DB ");
-//        String token = tokenService.generateTokenFromUserDetail(user);
-//        Map<String, Object> response = new HashMap<>();
-//        response.put("user", user);
-//        response.put("token", token);
-//        return ResponseEntity.ok(response);
-// -----------------------------------------------------
-//        return mapUserDetailsToResponse(Optional
-//                .ofNullable(appUserService.loadUserByUsername(login.getUserName())));
-// -----------------------------------------------------
         return mapUserDetailsToResponse(appUserService.loginUserFromDB(login));
 
     }
@@ -96,7 +72,5 @@ public class MyController {
         response.put("scope", user.get().getAuthorities().toString());
         response.put("token", token);
         return ResponseEntity.ok(response);
-    }
-    
-    
+    }    
 }

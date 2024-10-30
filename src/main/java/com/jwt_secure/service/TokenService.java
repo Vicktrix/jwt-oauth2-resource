@@ -42,9 +42,6 @@ public class TokenService {
     
     public String generateTokenFromAppUser(AppUser user) {
         Instant now = Instant.now();
-//        String scope = auth.getAuthorities().stream()
-//                .map(GrantedAuthority::getAuthority)
-//                .collect(Collectors.joining(" "));
         String scope = user.getRole();
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("self")
@@ -54,8 +51,7 @@ public class TokenService {
                 .claim("scope", scope)
                 .build();
         return this.encoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
-    }
-    
+    }    
     public String generateTokenFromUserDetail(UserDetails userDetails) {
         Instant now = Instant.now();
         String scope = userDetails.getAuthorities().stream()
@@ -70,5 +66,4 @@ public class TokenService {
                 .build();
         return this.encoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }
-
 }
