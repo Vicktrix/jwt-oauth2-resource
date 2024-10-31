@@ -41,12 +41,18 @@ public class MyController {
     public String userHome() {
         return "User Home page";
     }
+    @GetMapping("/all")
+    public ResponseEntity<Object> showAll() {
+        return ResponseEntity.ok(appUserService.fetchAllAppUsers());
+    }
     @GetMapping("/profile")
     public ResponseEntity<Object> profile(Authentication auth) {
+        System.out.println("Profile works");
         Map<String, Object> response = new HashMap<>();
         response.put("userName", auth.getName());
         response.put("Authorities", auth.getAuthorities());
-        response.put("AppUser", appUserService.getAppUserByName(auth.getName()).get());
+        System.out.println("skip appUserService(skip DB) and looks, we are asking(requst) DB each time or parse token");
+//        response.put("AppUser", appUserService.getAppUserByName(auth.getName()).get());
         return ResponseEntity.ok(response);
     }
     

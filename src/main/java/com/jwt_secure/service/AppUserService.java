@@ -6,6 +6,7 @@ import com.jwt_secure.model.RegisterDto;
 import com.jwt_secure.model.UserDetailModel;
 import com.jwt_secure.repositories.AppUserRepository;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,7 +27,9 @@ public class AppUserService implements UserDetailsService {
     }
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        System.out.println("\nBefore request findByUsername() to DB");
         AppUser appUser = repo.findByUsername(username);
+        System.out.println("\nAfter request findByUsername() to DB");
         return Optional.of(appUser).map(UserDetailModel::new).orElseThrow(()->new UsernameNotFoundException("Invalid Username"));
     }
     public Optional<UserDetails> saveUserToDB(RegisterDto dto) {
@@ -53,4 +56,8 @@ public class AppUserService implements UserDetailsService {
         user.setPassword(encoder.encode(r.getPassword()));
         return user;
     };
+    // ---------------------------------------------------------
+    public List<AppUser> fetchAllAppUsers() {
+        return repo.findAll();
+    }
 }
