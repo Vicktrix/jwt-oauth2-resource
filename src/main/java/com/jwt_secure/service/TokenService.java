@@ -12,11 +12,6 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 
-/**
- * https://github.com/danvega/jwt/blob/master/src/main/java/dev/danvega/jwt/service/TokenService.java
- * 
- * https://www.youtube.com/watch?v=o1BVL-H7pwk
- */
 @Service
 public class TokenService {
     private final JwtEncoder encoder;

@@ -47,12 +47,10 @@ public class MyController {
     }
     @GetMapping("/profile")
     public ResponseEntity<Object> profile(Authentication auth) {
-        System.out.println("Profile works");
         Map<String, Object> response = new HashMap<>();
         response.put("userName", auth.getName());
         response.put("Authorities", auth.getAuthorities());
-        System.out.println("skip appUserService(skip DB) and looks, we are asking(requst) DB each time or parse token");
-//        response.put("AppUser", appUserService.getAppUserByName(auth.getName()).get());
+        response.put("AppUser", appUserService.getAppUserByName(auth.getName()).get());
         return ResponseEntity.ok(response);
     }
     
@@ -60,10 +58,10 @@ public class MyController {
     public ResponseEntity<Object> userRegister(@RequestBody RegisterDto registerDto) {
         return mapUserDetailsToResponse(appUserService.saveUserToDB(registerDto));
     }
-    @GetMapping("/login")
-    public String userLogin() {
-        return "User Home page";
-    }
+//    @GetMapping("/login")
+//    public String userLogin() {
+//        return "User Home page";
+//    }
     @PostMapping("/login")
     public ResponseEntity<Object> userLogining(@RequestBody LoginDto login) {
         return mapUserDetailsToResponse(appUserService.loginUserFromDB(login));

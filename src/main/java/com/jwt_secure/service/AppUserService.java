@@ -27,9 +27,7 @@ public class AppUserService implements UserDetailsService {
     }
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        System.out.println("\nBefore request findByUsername() to DB");
         AppUser appUser = repo.findByUsername(username);
-        System.out.println("\nAfter request findByUsername() to DB");
         return Optional.of(appUser).map(UserDetailModel::new).orElseThrow(()->new UsernameNotFoundException("Invalid Username"));
     }
     public Optional<UserDetails> saveUserToDB(RegisterDto dto) {

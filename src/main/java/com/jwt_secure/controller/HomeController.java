@@ -4,9 +4,11 @@ import com.jwt_secure.token.RSAKeyPairGenerator;
 import java.security.Principal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
+@RequestMapping("/resources")
 public class HomeController {
     
     private RSAKeyPairGenerator keys;
@@ -16,9 +18,15 @@ public class HomeController {
     }
 
     @GetMapping("/home")
-    @ResponseBody
+//    @ResponseBody
     public String home() {
-        return "Hello in JWT!";
+//        return "home.html";
+        return "home";
+    }
+    @GetMapping("/store2")
+    @ResponseBody
+    public String store() {
+        return "Store page 2!";
     }
     @GetMapping("/info")
     @ResponseBody
