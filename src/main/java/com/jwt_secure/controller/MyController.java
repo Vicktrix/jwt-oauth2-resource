@@ -47,6 +47,7 @@ public class MyController {
     }
     @GetMapping("/profile")
     public ResponseEntity<Object> profile(Authentication auth) {
+        System.out.println("\nInside Profile - correct token\n");
         Map<String, Object> response = new HashMap<>();
         response.put("userName", auth.getName());
         response.put("Authorities", auth.getAuthorities());

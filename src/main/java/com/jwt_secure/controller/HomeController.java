@@ -7,6 +7,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+/*      This MVC controller 
+        all request must starts with URL /resources
+        all REST request with same URL will be override by MVC
+        all MVC resources maps in WebMvcConfigurer(impl. MyWebConfig)
+            and located "classpath:/static/" 
+*/
 @Controller
 @RequestMapping("/resources")
 public class HomeController {
@@ -17,12 +23,6 @@ public class HomeController {
         this.keys = keys;
     }
 
-    @GetMapping("/home")
-//    @ResponseBody
-    public String home() {
-//        return "home.html";
-        return "home";
-    }
     @GetMapping("/store2")
     @ResponseBody
     public String store() {
@@ -44,10 +44,6 @@ public class HomeController {
         return "Private Key = "+keys.getPublicKeyBase64();
     }
     
-//    @GetMapping("/login")
-    public String logIn() {
-        return "login.html";
-    }
     @GetMapping("/log")
     public String log() {
         return "log.html";

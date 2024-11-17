@@ -11,7 +11,9 @@ import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Arrays;
+import static java.util.Arrays.asList;
 import java.util.List;
+import java.util.Set;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,12 +27,20 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 import static org.springframework.security.config.Customizer.*;
+import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
+import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.security.web.csrf.CsrfAuthenticationStrategy;
+import org.springframework.security.web.csrf.CsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestHandler;
+import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
+import org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -53,8 +63,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
             .csrf(csrf -> csrf.disable())
-//            .cors(withDefaults())                   //// test -  by default uses a Bean by the name of corsConfigurationSource, but we don`t use it
 //            .cors(c -> c.disable())                   // set CORS as WebMvcConfigurer
+            .cors(myCors)
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/store/**", "/account", 
 //                        "/home", 
@@ -63,21 +73,72 @@ public class SecurityConfig {
                         "/register", "/login", "/token").permitAll()
                 .anyRequest().authenticated())
             .oauth2ResourceServer(auth -> auth.jwt(withDefaults()))
-            .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))    
+            .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .build();
     }
     
+    private Customizer<CsrfConfigurer<HttpSecurity>> myCsrf = csrf -> {
+                Set<String> allowedMethods = Set.of("GET", "HEAD", "TRACE", "OPTIONS");
+                CsrfTokenRepository csrfTokenRepository = new HttpSessionCsrfTokenRepository();
+                csrf
+                    .requireCsrfProtectionMatcher(request ->
+                        !allowedMethods.contains(request.getMethod()))
+                    .requireCsrfProtectionMatcher(request -> request.getCookies()==null)
+                    .ignoringRequestMatchers("/api/**")
+                    .csrfTokenRepository(csrfTokenRepository)
+                    .csrfTokenRequestHandler(new XorCsrfTokenRequestAttributeHandler())
+                    .sessionAuthenticationStrategy(
+                      new CsrfAuthenticationStrategy(csrfTokenRepository));
+        };
+    private Customizer<CsrfConfigurer<HttpSecurity>> stateLessTest = csrf -> {
+            csrf.requireCsrfProtectionMatcher(request -> {
+                    boolean yes = request.getCookies()==null;
+                    System.out.print("\n don`t I use cookies(SessionCreationPolicy.STATELESS)? ");
+                    System.out.println((yes? "Yes" : "No"));
+                    return yes;
+            });
+    };
+    
+    private Customizer<CorsConfigurer<HttpSecurity>> myCors = cors -> {
+        cors.configurationSource(corsConfigurationSource());    
+    };
+            
 //    @Bean
-    CorsConfigurationSource corsConfigurationSource() {
+//    CorsConfigurationSource corsConfigurationSource() {
+//        CorsConfiguration configuration = new CorsConfiguration();
+////        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
+//        configuration.setAllowedOrigins(Arrays.asList("/**"));
+//        configuration.setAllowedMethods(Arrays.asList("GET"));
+//        configuration.setAllowedHeaders(List.of("Authorization"));
+//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        source.registerCorsConfiguration("/**", configuration);
+//        return source;
+//    }
+    
+    /*
+        https://stackoverflow.com/questions/62822393/spring-security-addcorsmappings-has-no-effect    
+    */
+    
+//    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-//        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
-        configuration.setAllowedOrigins(Arrays.asList("/**"));
-        configuration.setAllowedMethods(Arrays.asList("GET"));
-        configuration.setAllowedHeaders(List.of("Authorization"));
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        configuration.setAllowedOrigins(asList("*"));
+        configuration.setAllowedOrigins(asList("http://localhost:8383"));
+        configuration.setAllowedMethods(asList("HEAD",
+                "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        // setAllowCredentials(true) is important, otherwise:
+        // The value of the 'Access-Control-Allow-Origin' header in the response must not be the wildcard '*' when the request's credentials mode is 'include'.
+        configuration.setAllowCredentials(true);
+        // setAllowedHeaders is important! Without it, OPTIONS preflight request
+        // will fail with 403 Invalid CORS request
+        configuration.setAllowedHeaders(
+                asList("Authorization", "Cache-Control", "Content-Type", "Access-Control-Allow-Origin",
+                        "Access-Control-Expose-Headers", "Access-Control-Allow-Headers"));
+        final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+    
     
     @Bean
     public JwtDecoder jwtDecoder() {

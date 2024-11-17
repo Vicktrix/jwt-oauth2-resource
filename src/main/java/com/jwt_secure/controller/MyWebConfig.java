@@ -21,11 +21,21 @@ public class MyWebConfig implements WebMvcConfigurer {
                 .setCachePeriod(10);                // cach page to 10 second
     }
 
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-//        registry.addMapping("/**").allowedOrigins("http://localhost:9000");
-        registry.addMapping("/**").allowedOrigins("http://localhost:8383");
-        
-    }
+    /*
+        Maybe this CORS setting not wokring for my API becouse it`s setting for MVC
+    
+    */
+    
+//    @Override
+//    public void addCorsMappings(CorsRegistry registry) {
+////        registry.addMapping("/**").allowedOrigins("http://localhost:8383");
+//        registry.addMapping("/**").allowedOrigins("http://localhost:8383")
+//                .allowedMethods("POST", "OPTIONS", "GET", "HEAD", "DELETE", "PUT")
+//                .allowedHeaders("Authorization")
+//                .allowCredentials(true)
+//                ;
+////        registry.addMapping(" ").allowedMethods("OPTIONS").
+//        
+//    }
     
 }
